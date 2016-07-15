@@ -37,7 +37,9 @@ public class M3BaseReader {
             Song song = M3Library.parseLibLine(bytes, le);
             if (song != null) {
                 songs.add(song);
-                System.out.println(song.name + " - " + song.album);
+                System.out.println(song.name);
+                Utils.writeBytes(bytes);
+                System.out.println();
                 flen++;
             }
         }
@@ -47,7 +49,7 @@ public class M3BaseReader {
         Collections.shuffle(songs);
         for (int i = 0; i < 10; i++) {
             ByteBuffer buffer = ByteBuffer.allocate(256);
-            M3Playlist.generatePlaylistEntry(buffer, i + 1, songs.get(i));
+            M3Playlist.generatePlaylistEntry(buffer, i + 1, 0x10040000, songs.get(i));
             Utils.writeBytes(buffer.array());
         }
     }

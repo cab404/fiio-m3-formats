@@ -18,15 +18,17 @@ public class M3Playlist {
     private static final int pl_b_weirdThingsIndex = 98;
     private static final int pl_b_nameIndex = 104;
 
-    public static void generatePlaylistEntry(ByteBuffer writeTo, int index, Song song){
+    public static void generatePlaylistEntry(ByteBuffer writeTo, int index, int id, Song song){
         if (writeTo.capacity() < 256) throw new RuntimeException("Buffer is too small for playlist entry!");
 
         // index
         writeTo.position(pl_b_indexIndex);
         writeTo.putInt(0x01000000);
         writeTo.put((byte) (index - 2 > 0 ? index - 2 : 0));
-        writeTo.put(    pl_b_indexIndex + 6,    (byte) (index));
-        writeTo.putInt( pl_b_indexIndex + 8,    0x10000000);
+        writeTo.put((byte) 0);
+        writeTo.put((byte) index);
+        writeTo.put((byte) 0);
+        writeTo.putInt(id);
 
         // format
         writeTo.position(pl_b_formatIndex);

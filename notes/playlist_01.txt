@@ -16,11 +16,18 @@ playlist index is something like
 0100 0000 0200 0400 1002 0000
 0100 0000 0300 0500 1002 0000
 still not exactly sure how it's made.
-it is possible that first byte updates on db sync and indicates presence of file - 01 when present and 02 otherwise.
-10nth byte appears to be format indicator. research ongoing.
+
+first quartet has only availability flag - first byte is 01 when present and 02 otherwise.
+and it doesn't do anything. at all ._.
+
+second quartet has index and... index. yup
+
+third appears to have playlist id, or something of that sort.
+it is probably saved in players internal somewhat, because changing it results in crash.
+
 needs more research.
 
-file id is actually more interesting than i thought - it starts with tail byte octet - yes, whole octet. not quintet.
+file id is actually more interesting than i thought - it starts with tail byte octet - yes, whole octet. not quartet.
 not sure why though. possibly because of end detection reasons?
 maybe i am just an idiot, and there's some rfc telling that all fat32 files are addressed like that.
 
