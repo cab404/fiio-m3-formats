@@ -1,10 +1,13 @@
 playlist :
-24b     |       playlist index      |
-4b      |      |00 ← file format in ASCII
-80b     | whole lot of block id octets
-2b      ||80 ← number of address octets-2
-6b      C29F 686C C29F ← not sure yet what is it. quite possibly just some padding, but that doesn't explain values.
-140b    | name in standard tag variant (starting with 0xffef (0xfffe in BE) and ending with null terminator)
+0b     12b     playlist index
+12b    4b      file format in ASCII
+16b    80b     whole lot of file address octets
+96b    2b      XX80, where XX is number of file address octets - 2
+98b    6b      C29F 686C C29F, not sure yet what is it. quite possibly just some padding, but that doesn't explain values.
+104b   152b    name in standard tag format, possibly there is a smaller name length limit
+
+all name/artist/whatever string tags are starting with 0xffef (0xfffe in BE) and ending with null terminator.
+all of them are in UTF-16LE.
 
 playlist index is something like 
 0100 0000 0000 0100 1002 0000
@@ -12,7 +15,10 @@ playlist index is something like
 0100 0000 0100 0300 1002 0000
 0100 0000 0200 0400 1002 0000
 0100 0000 0300 0500 1002 0000
-still not exactly sure how it's made, needs more research.
+still not exactly sure how it's made.
+it is possible that first byte updates on db sync and indicates presence of file - 01 when present and 02 otherwise.
+10nth byte appears to be format indicator. research ongoing.
+needs more research.
 
 file id is actually more interesting than i thought - it starts with tail byte octet - yes, whole octet. not quintet.
 not sure why though. possibly because of end detection reasons?
