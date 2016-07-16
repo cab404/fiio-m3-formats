@@ -32,17 +32,26 @@ public class M3Playlist {
         FileInputStream is = new FileInputStream(file);
         List<PlaylistEntry> entries = new ArrayList<>();
 
+        // reading header with size info
         byte[] bytes = new byte[pl_b_entrySize];
-        while (is.read(bytes) == bytes.length) {
+        is.read(bytes);
+        byte plSize = bytes[8];
+        is.skip(pl_b_entrySize);
+
+        // reading playlist
+        for (int i = 0; i < plSize && is.read(bytes) == bytes.length; ) {
             PlaylistEntry entry = M3Playlist.parsePlLine(bytes);
-            if (entry != null) entries.add(entry);
+            if (entry != null) {
+                entries.add(entry);
+                i++;
+            }
         }
         is.close();
 
         return entries;
     }
 
-    public static void generatePlaylistEntry(ByteBuffer writeTo, PlaylistEntry entry){
+    public static void generatePlaylistEntry(ByteBuffer writeTo, PlaylistEntry entry) {
         if (writeTo.capacity() < 256) throw new RuntimeException("Buffer is too small for playlist entry!");
 
         Song song = entry.song;
@@ -87,7 +96,7 @@ public class M3Playlist {
         Utils.writeTag(writeTo, song.name);
     }
 
-    public static PlaylistEntry parsePlLine(byte[] bytesArray){
+    public static PlaylistEntry parsePlLine(byte[] bytesArray) {
         ByteBuffer bytes = ByteBuffer.wrap(bytesArray);
         if ((bytes.getLong(pl_b_weirdThingsIndex) & ~0xFFFFL) != WEIRD_THING) return null;
 
@@ -111,7 +120,7 @@ public class M3Playlist {
         return entry;
     }
 
-    public static void rewriteHeader(byte[] header, byte playlistSize){
+    public static void rewriteHeader(byte[] header, byte playlistSize) {
         header[8] = playlistSize;
         header[12] = playlistSize;
     }
