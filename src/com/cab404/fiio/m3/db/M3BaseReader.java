@@ -1,5 +1,6 @@
 package com.cab404.fiio.m3.db;
 
+import com.cab404.fiio.m3.db.data.PlaylistEntry;
 import com.cab404.fiio.m3.db.data.Song;
 
 import java.io.File;
@@ -26,53 +27,37 @@ public class M3BaseReader {
 
     private static final int lib_b_entrySize = 256;
 
-    private static void readDB(File file) throws IOException {
+    public static List<Song> readDB(File file) throws IOException {
         FileInputStream is = new FileInputStream(file);
 
         List<Song> songs = new ArrayList<>();
         byte[] bytes = new byte[lib_b_entrySize];
-        int flen = 0;
-        CharBuffer le = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asCharBuffer();
         while (is.read(bytes) == bytes.length) {
-            Song song = M3Library.parseLibLine(bytes, le);
+            Song song = M3Library.parseLibLine(bytes);
             if (song != null) {
                 songs.add(song);
-                System.out.println(song.name);
-                Utils.writeBytes(bytes);
-                System.out.println();
-                flen++;
             }
         }
-        System.out.println(flen);
         is.close();
 
-        Collections.shuffle(songs);
-        for (int i = 0; i < 10; i++) {
-            ByteBuffer buffer = ByteBuffer.allocate(256);
-            M3Playlist.generatePlaylistEntry(buffer, i + 1, 0x10040000, songs.get(i));
-            Utils.writeBytes(buffer.array());
-        }
+        return songs;
     }
 
 
-    private static void readPL(File file) throws IOException {
+
+
+    private static List<PlaylistEntry> readPL(File file) throws IOException {
         FileInputStream is = new FileInputStream(file);
+        List<PlaylistEntry> entries = new ArrayList<>();
 
         byte[] bytes = new byte[lib_b_entrySize];
-        int flen = 0;
-        CharBuffer le = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asCharBuffer();
         while (is.read(bytes) == bytes.length) {
-            String tag = Utils.extractTag(le, 52);
-            if (tag == null && flen != 0) continue;
-            if (tag != null) {
-                System.out.println(tag);
-                flen++;
-            }
-            Utils.writeBytes(bytes);
-            System.out.println();
+            PlaylistEntry entry = M3Playlist.parsePlLine(bytes);
+            if (entry == null) entries.add(entry);
         }
-        System.out.println(flen);
         is.close();
+
+        return entries;
     }
 
 }

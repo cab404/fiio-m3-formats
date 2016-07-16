@@ -1,0 +1,12 @@
+format is pretty easy - each row is 256b wide, data starts at 512b.
+
+0b      - name
+28b     - author
+42b     - album
+56b     - genre
+70b     - track
+148b    - format
+168b    - fileId (64b of it, padded with zeros)
+
+all strings are in tag format (more on it in playlist.txt)
+i don't really know, what comes after the data. looks like some sort of string cache.
