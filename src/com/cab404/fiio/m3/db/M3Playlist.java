@@ -95,4 +95,8 @@ public class M3Playlist {
         return entry;
     }
 
+    public static void rewriteHeader(byte[] header, byte playlistSize){
+        header[8] = playlistSize;
+    }
+
 }

@@ -18,7 +18,8 @@ import java.util.List;
  */
 public class M3BaseReader {
     public static void main(String[] args) throws Exception {
-        readDB(new File("data/MUSIC.LIB"));
+        List<Song> songs = readDB(new File("data/MUSIC.LIB"));
+        System.out.println(songs.size());
         System.out.println("pl2");
         readPL(new File("data/02/USERPL2.PL"));
         System.out.println("pl3");
@@ -44,8 +45,6 @@ public class M3BaseReader {
     }
 
 
-
-
     private static List<PlaylistEntry> readPL(File file) throws IOException {
         FileInputStream is = new FileInputStream(file);
         List<PlaylistEntry> entries = new ArrayList<>();
@@ -53,7 +52,7 @@ public class M3BaseReader {
         byte[] bytes = new byte[lib_b_entrySize];
         while (is.read(bytes) == bytes.length) {
             PlaylistEntry entry = M3Playlist.parsePlLine(bytes);
-            if (entry == null) entries.add(entry);
+            if (entry != null) entries.add(entry);
         }
         is.close();
 
