@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="libm3db"
+         default="def">
+	<property file="build.properties"/>
+
+	<target name="def"
+	        depends="jar-all, clean"/>
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+
+	<target name="build-clean">
+
+		<delete dir="${build.dir}"/>
+		<mkdir dir="${build.dir}"/>
+
+		<javac
+				debug="true"
+				debuglevel="lines,vars,source"
+				executable="${jdk.bin}"
+				destdir="${build.dir}"
+				srcdir="${src.dir}"
+				>
+
+			<include name="com/**/*.java"/>
+		</javac>
+
+	</target>
+
+	<target name="jar-lib"
+	        depends="build-clean">
+		<jar destfile="${out.dir}/${ant.project.name}.jar"
+		     basedir="${build.dir}"/>
+	</target>
+
+	<target name="jar-sources">
+		<jar destfile="${out.dir}/${ant.project.name}-sources.jar"
+		     basedir="${src.dir}">
+			<include name="com/**/*.java"/>
+		</jar>
+	</target>
+
+	<target name="jar-all"
+	        depends="jar-lib, jar-sources"/>
+
+</project>
