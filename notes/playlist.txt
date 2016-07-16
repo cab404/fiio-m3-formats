@@ -15,15 +15,15 @@ playlist index is something like
 0100 0000 0100 0300 1002 0000
 0100 0000 0200 0400 1002 0000
 0100 0000 0300 0500 1002 0000
-still not exactly sure how it's made.
 
 first quartet has only availability flag - first byte is 01 when present and 02 otherwise.
 and it doesn't do anything. at all ._.
 
-second quartet has index and... index. yup
+second quartet has index and... index. yup.
 
 third appears to have playlist id, or something of that sort.
 it is probably saved in players internal somewhat, because changing it results in crash.
+on clearing playlist it is replaced with a new one in some sort of internal device storage.
 
 needs more research.
 

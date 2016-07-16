@@ -3,17 +3,21 @@ package com.cab404.fiio.m3.db;
 import com.cab404.fiio.m3.db.data.PlaylistEntry;
 import com.cab404.fiio.m3.db.data.Song;
 
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.LongBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author cab404
  */
 public class M3Playlist {
 
+    private static final int pl_b_entrySize = 256;
     private static final int pl_b_indexIndex = 0;
     private static final int pl_b_formatIndex = 12;
     private static final int pl_b_addressIndex = 16;
@@ -22,6 +26,21 @@ public class M3Playlist {
     private static final int pl_b_nameIndex = 104;
     private static final int pl_c_nameIndex = 52;
     private static final long WEIRD_THING = 0xC29F686CC29F0000L;
+
+
+    public static List<PlaylistEntry> readPL(File file) throws IOException {
+        FileInputStream is = new FileInputStream(file);
+        List<PlaylistEntry> entries = new ArrayList<>();
+
+        byte[] bytes = new byte[pl_b_entrySize];
+        while (is.read(bytes) == bytes.length) {
+            PlaylistEntry entry = M3Playlist.parsePlLine(bytes);
+            if (entry != null) entries.add(entry);
+        }
+        is.close();
+
+        return entries;
+    }
 
     public static void generatePlaylistEntry(ByteBuffer writeTo, PlaylistEntry entry){
         if (writeTo.capacity() < 256) throw new RuntimeException("Buffer is too small for playlist entry!");
@@ -65,10 +84,7 @@ public class M3Playlist {
 
         // name
         writeTo.position(pl_b_nameIndex);
-        if (song.name.charAt(0) != 0xfeff)
-            writeTo.putChar((char) 0xfffe);
-        writeTo.put(song.name.getBytes(Charset.forName("UTF-16LE")));
-
+        Utils.writeTag(writeTo, song.name);
     }
 
     public static PlaylistEntry parsePlLine(byte[] bytesArray){
@@ -97,6 +113,39 @@ public class M3Playlist {
 
     public static void rewriteHeader(byte[] header, byte playlistSize){
         header[8] = playlistSize;
+        header[12] = playlistSize;
+    }
+
+    public static void rewritePlaylist(File pl, List<Song> songs) throws IOException {
+        byte[] buffer = new byte[256];
+        RandomAccessFile rw = new RandomAccessFile(pl, "rw");
+
+        // rewriting header with actual playlist size
+        rw.seek(0);
+        rw.read(buffer);
+        rewriteHeader(buffer, (byte) songs.size());
+        rw.seek(0);
+        rw.write(buffer);
+
+        // taking out id
+        rw.seek(512);
+        rw.read(buffer);
+        PlaylistEntry header = parsePlLine(buffer);
+        if (header == null) throw new RuntimeException("Cannot write to a playlist with no previous entries!");
+
+        // songs
+        rw.seek(512);
+        ByteBuffer bytes = ByteBuffer.wrap(buffer);
+        for (int i = 0; i < songs.size(); i++) {
+            header.index = i + 1;
+            header.song = songs.get(i);
+            header.presence = true;
+            generatePlaylistEntry(bytes, header);
+            rw.write(buffer);
+        }
+        // tail!
+        rw.write(2);
+        rw.close();
     }
 
 }

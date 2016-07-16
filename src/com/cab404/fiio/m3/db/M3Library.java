@@ -2,9 +2,14 @@ package com.cab404.fiio.m3.db;
 
 import com.cab404.fiio.m3.db.data.Song;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author cab404
@@ -19,6 +24,8 @@ public class M3Library {
     private static final int lib_c_trackIndex = 70;
     private static final int lib_b_fileIdIndex = 84 * 2;
     public static final int lib_b_fileIdSize = 64;
+    private static final int lib_b_entrySize = 256;
+
 
     public static Song parseLibLine(byte[] bytesArray){
         ByteBuffer bytes = ByteBuffer.wrap(bytesArray);
@@ -42,5 +49,22 @@ public class M3Library {
         bytes.get(song.file, 0, lib_b_fileIdSize);
 
         return song;
+    }
+
+
+    public static List<Song> readDB(File file) throws IOException {
+        FileInputStream is = new FileInputStream(file);
+
+        List<Song> songs = new ArrayList<>();
+        byte[] bytes = new byte[lib_b_entrySize];
+        while (is.read(bytes) == bytes.length) {
+            Song song = M3Library.parseLibLine(bytes);
+            if (song != null) {
+                songs.add(song);
+            }
+        }
+        is.close();
+
+        return songs;
     }
 }
