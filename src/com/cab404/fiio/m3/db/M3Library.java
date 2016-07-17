@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class M3Library {
         bytes.position(lib_b_formatIndex);
         bytes.get(formatChars, 0, 3);
 
-        song.format = new String(formatChars);
+        song.format = new String(formatChars, Charset.forName("ASCII"));
         song.author = Utils.extractTag(le, lib_c_authorIndex);
         song.album = Utils.extractTag(le, lib_c_albumIndex);
         song.genre = Utils.extractTag(le, lib_c_genreIndex);
