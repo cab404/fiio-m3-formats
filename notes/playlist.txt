@@ -1,8 +1,9 @@
 playlist :
+start  size
 0b     12b     playlist index
 12b    4b      file format in ASCII
 16b    80b     whole lot of file address octets
-96b    2b      XX80, where XX is number of file address octets - 2
+96b    2b      number of file address octets
 98b    6b      C29F 686C C29F, not sure yet what is it. quite possibly just some padding, but that doesn't explain values.
 104b   152b    name in standard tag format, possibly there is a smaller name length limit
 
